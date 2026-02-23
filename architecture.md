@@ -109,6 +109,33 @@ Both use client-side navigation via `onAbout` (no full page reload).
 
 **Project rename:** "Prettify Python" → "Snake Charmer" across `package.json` (`name` field), `index.html` (`<title>`, meta description), `AboutPage.tsx`, `CLAUDE.md`, `README.md`, and `architecture.md`. The directory name on disk was not changed.
 
+### Phase 5: PostHog Analytics
+
+Added custom event tracking using PostHog (`@posthog/react`). The provider was already wrapping `<App>` — this phase added `posthog.capture()` calls at key interaction points and fixed the environment variable plumbing.
+
+**Events tracked:**
+
+| Event | Properties | Location |
+|---|---|---|
+| `chapter_viewed` | `version`, `section`, `slug` | `App.tsx` — `handleNavigate` |
+| `section_changed` | `version`, `section` | `Sidebar.tsx` — `handleSectionChange` |
+| `search_executed` | `version`, `section`, `query`, `result_count` | `SearchDialog.tsx` — after results arrive |
+| `search_result_selected` | `version`, `section`, `slug`, `query` | `SearchDialog.tsx` — `handleSelect` |
+| `theme_toggled` | `theme` (new value) | `Layout.tsx` — theme button click |
+| `width_toggled` | `width` (new value) | `Layout.tsx` — width button click |
+
+Each component calls `usePostHog()` from `@posthog/react` to get the PostHog client. Events are fired inline at the point of interaction — no abstraction layer or analytics service.
+
+**Cookieless mode:** PostHog is configured with `cookieless_mode: "always"` in the provider options. This means no cookies or localStorage for user identification — each page load gets a fresh anonymous ID. Events and their properties are unaffected; only cross-session user linkage is lost.
+
+**Environment variables for the frontend:** Bun auto-loads `.env` into `process.env` on the server, but frontend code bundled via HTML imports needs explicit configuration. The `bunfig.toml` file at the project root declares `[serve.static] env = "PUBLIC_*"`, which tells Bun's static bundler to inline any `process.env.PUBLIC_*` references in frontend code with their actual values at bundle time. This works in both development and production.
+
+The two PostHog env vars:
+- `PUBLIC_POSTHOG_KEY` — project API key
+- `PUBLIC_POSTHOG_HOST` — ingest endpoint (e.g. `https://us.i.posthog.com`)
+
+**Why `PUBLIC_*` prefix, not `VITE_PUBLIC_*`?** The original code used `import.meta.env.VITE_PUBLIC_*`, which is a Vite convention. Bun doesn't recognize the `VITE_PUBLIC_` prefix or `import.meta.env` in HTML import bundles. Bun's convention is `process.env.PUBLIC_*` with the prefix configured in `bunfig.toml`.
+
 ## System Architecture
 
 ### Server (`src/server.ts`)
@@ -218,6 +245,7 @@ code.css       ← Pygments syntax tokens (dark + light)
 
 | File | Responsibility | Key exports |
 |------|---------------|-------------|
+| `bunfig.toml` | Bun config | `[serve.static] env = "PUBLIC_*"` for frontend env var inlining |
 | `setup-docs.ts` | Download Python docs | `downloadVersion()`, CLI arg parsing |
 | `chapters.ts` | Section/chapter definitions | `SECTIONS`, `TUTORIAL_CHAPTERS`, `REFERENCE_CHAPTERS`, `discoverLibraryChapters()` |
 | `extractor.ts` | HTML → JSON pipeline | `extractAllContent()`, `ChapterData`, `TocEntry` |
