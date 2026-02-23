@@ -8,6 +8,13 @@ import {
 import { discoverVersions } from "./versions";
 import { bucket } from "./s3";
 
+async function loadBundle(version: string): Promise<Map<string, string>> {
+  const compressed = await bucket.file(`${version}/bundle.json.gz`).arrayBuffer();
+  const decompressed = Bun.gunzipSync(new Uint8Array(compressed));
+  const json: Record<string, string> = JSON.parse(new TextDecoder().decode(decompressed));
+  return new Map(Object.entries(json));
+}
+
 export interface TocEntry {
   id: string;
   text: string;
@@ -120,6 +127,10 @@ export async function extractAllContent(): Promise<Map<string, Map<string, Map<s
   for (const { version } of versions) {
     const versionMap = new Map<string, Map<string, ChapterData>>();
 
+    // Download the entire bundle once (1 S3 request)
+    const files = await loadBundle(version);
+    console.log(`  Loaded bundle for Python ${version} (${files.size} files)`);
+
     for (const sectionMeta of SECTIONS) {
       const sectionMap = new Map<string, ChapterData>();
 
@@ -129,45 +140,38 @@ export async function extractAllContent(): Promise<Map<string, Map<string, Map<s
       if (staticChapters) {
         chapters = staticChapters;
       } else {
-        try {
-          chapters = await discoverLibraryChapters(version);
-        } catch {
-          console.warn(`  Warning: Could not discover chapters for ${version}/${sectionMeta.dir}`);
-          chapters = [];
-        }
+        chapters = discoverLibraryChapters(files);
       }
 
       for (let i = 0; i < chapters.length; i++) {
         const chapter = chapters[i];
-        const s3Key = `${version}/${sectionMeta.dir}/${chapter.filename}`;
+        const fileKey = `${sectionMeta.dir}/${chapter.filename}`;
+        const rawHtml = files.get(fileKey);
 
-        try {
-          const rawHtml = await bucket.file(s3Key).text();
-          let bodyHtml = extractBody(rawHtml);
-          bodyHtml = rewriteLinks(bodyHtml, version, sectionMeta.id, chapters);
-          const toc = extractToc(bodyHtml);
-          const plainText = stripHtml(bodyHtml);
+        if (!rawHtml) continue;
 
-          const prev = i > 0
-            ? { slug: chapters[i - 1].slug, title: chapters[i - 1].title, number: chapters[i - 1].number }
-            : null;
-          const next = i < chapters.length - 1
-            ? { slug: chapters[i + 1].slug, title: chapters[i + 1].title, number: chapters[i + 1].number }
-            : null;
+        let bodyHtml = extractBody(rawHtml);
+        bodyHtml = rewriteLinks(bodyHtml, version, sectionMeta.id, chapters);
+        const toc = extractToc(bodyHtml);
+        const plainText = stripHtml(bodyHtml);
 
-          sectionMap.set(chapter.slug, {
-            slug: chapter.slug,
-            number: chapter.number,
-            title: chapter.title,
-            html: bodyHtml,
-            toc,
-            plainText,
-            prev,
-            next,
-          });
-        } catch (err) {
-          // Silently skip files that can't be read
-        }
+        const prev = i > 0
+          ? { slug: chapters[i - 1].slug, title: chapters[i - 1].title, number: chapters[i - 1].number }
+          : null;
+        const next = i < chapters.length - 1
+          ? { slug: chapters[i + 1].slug, title: chapters[i + 1].title, number: chapters[i + 1].number }
+          : null;
+
+        sectionMap.set(chapter.slug, {
+          slug: chapter.slug,
+          number: chapter.number,
+          title: chapter.title,
+          html: bodyHtml,
+          toc,
+          plainText,
+          prev,
+          next,
+        });
       }
 
       versionMap.set(sectionMeta.id, sectionMap);

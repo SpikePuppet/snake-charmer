@@ -1,5 +1,3 @@
-import { bucket } from "./s3";
-
 export type Section = "tutorial" | "reference" | "library";
 
 export interface SectionMeta {
@@ -104,39 +102,21 @@ function extractTocOrder(indexHtml: string): string[] {
   return order;
 }
 
-export async function discoverLibraryChapters(version: string): Promise<ChapterMeta[]> {
-  const prefix = `${version}/library/`;
-
-  // List all HTML files in the library section
+export function discoverLibraryChapters(files: Map<string, string>): ChapterMeta[] {
+  // Find all library HTML files from the in-memory file map
   const htmlFiles: string[] = [];
-  let continuationToken: string | undefined;
-
-  do {
-    const result = await bucket.list({
-      prefix,
-      ...(continuationToken ? { continuationToken } : {}),
-    });
-
-    if (result.contents) {
-      for (const obj of result.contents) {
-        const filename = obj.key.slice(prefix.length);
-        if (filename.endsWith(".html") && filename !== "index.html" && !filename.includes("/")) {
-          htmlFiles.push(filename);
-        }
-      }
+  for (const key of files.keys()) {
+    if (key.startsWith("library/") && key.endsWith(".html") && key !== "library/index.html" && !key.slice("library/".length).includes("/")) {
+      htmlFiles.push(key.slice("library/".length));
     }
-
-    continuationToken = result.isTruncated
-      ? result.nextContinuationToken
-      : undefined;
-  } while (continuationToken);
+  }
 
   // Read index.html for TOC order
   let tocOrder: string[] = [];
-  try {
-    const indexHtml = await bucket.file(`${prefix}index.html`).text();
+  const indexHtml = files.get("library/index.html");
+  if (indexHtml) {
     tocOrder = extractTocOrder(indexHtml);
-  } catch {}
+  }
 
   // Build a map of slug → position from TOC order
   const orderMap = new Map<string, number>();
@@ -146,13 +126,12 @@ export async function discoverLibraryChapters(version: string): Promise<ChapterM
 
   for (const file of htmlFiles) {
     const slug = file.replace(".html", "");
-    try {
-      const html = await bucket.file(`${prefix}${file}`).text();
-      const title = extractTitle(html);
-      if (!title) continue;
-      const order = orderMap.get(slug) ?? 9999;
-      chapters.push({ slug, number: order + 1, title, filename: file });
-    } catch {}
+    const html = files.get(`library/${file}`);
+    if (!html) continue;
+    const title = extractTitle(html);
+    if (!title) continue;
+    const order = orderMap.get(slug) ?? 9999;
+    chapters.push({ slug, number: order + 1, title, filename: file });
   }
 
   // Sort by TOC order (number field), then alphabetically for unlisted

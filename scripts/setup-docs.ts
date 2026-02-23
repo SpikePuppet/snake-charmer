@@ -27,7 +27,7 @@ function parseArgs(args: string[]) {
 
 async function uploadVersion(version: string, force: boolean) {
   // Check if already uploaded
-  if (!force && await bucket.exists(`${version}/tutorial/index.html`)) {
+  if (!force && await bucket.exists(`${version}/bundle.json.gz`)) {
     console.log(`  ${version}: already exists in S3, skipping (use --force to re-upload)`);
     return;
   }
@@ -54,8 +54,9 @@ async function uploadVersion(version: string, force: boolean) {
 
   const extractedDir = join(tmpDir, `python-${version}-docs-html`);
 
-  console.log(`  ${version}: uploading to S3...`);
-  let uploadCount = 0;
+  console.log(`  ${version}: building bundle...`);
+  const bundle: Record<string, string> = {};
+  let fileCount = 0;
 
   for (const section of SECTIONS_TO_UPLOAD) {
     const sectionDir = join(extractedDir, section);
@@ -72,17 +73,25 @@ async function uploadVersion(version: string, force: boolean) {
 
     for (const file of htmlFiles) {
       const filePath = join(sectionDir, file);
-      const s3Key = `${version}/${section}/${file}`;
       const content = await Bun.file(filePath).text();
-      await bucket.write(s3Key, content, { type: "text/html" });
-      uploadCount++;
+      bundle[`${section}/${file}`] = content;
+      fileCount++;
     }
   }
+
+  const json = JSON.stringify(bundle);
+  const compressed = Bun.gzipSync(Buffer.from(json));
+  const s3Key = `${version}/bundle.json.gz`;
+
+  console.log(`  ${version}: uploading bundle to S3...`);
+  await bucket.write(s3Key, compressed, { type: "application/gzip" });
 
   // Clean up temp directory
   await $`rm -rf ${tmpDir}`.quiet();
 
-  console.log(`  ${version}: uploaded ${uploadCount} files to S3`);
+  const rawSize = (json.length / 1024 / 1024).toFixed(1);
+  const gzSize = (compressed.length / 1024 / 1024).toFixed(1);
+  console.log(`  ${version}: uploaded bundle (${fileCount} files, ${rawSize} MB raw → ${gzSize} MB gzipped)`);
 }
 
 async function main() {

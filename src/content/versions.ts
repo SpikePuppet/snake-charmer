@@ -19,7 +19,7 @@ export async function discoverVersions(): Promise<VersionInfo[]> {
 
     if (result.contents) {
       for (const obj of result.contents) {
-        const match = obj.key.match(/^(\d+\.\d+)\//);
+        const match = obj.key.match(/^(\d+\.\d+)\/bundle\.json\.gz$/);
         if (match) {
           versionSet.add(match[1]);
         }
