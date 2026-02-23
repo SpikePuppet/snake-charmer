@@ -81,6 +81,34 @@ The most architecturally significant change. The app was extended from a single-
 
 **Memory considerations:** Loading ~350 pages into memory at startup is fast and keeps the API simple (no disk I/O on requests). The server starts in a few seconds even with all sections loaded.
 
+### Phase 4: About Page & Project Rename
+
+Two changes in this phase: adding a static About page (the first non-doc route), and renaming the project from "Prettify Python" to "Snake Charmer".
+
+**About page — routing approach:**
+
+The existing router only understood `/:version/:section/:slug` doc routes. Rather than introducing a full routing library, the `parseRoute()` function was extended with a simple path check before the doc regex:
+
+1. `parseRoute()` returns an `about: boolean` alongside the existing version/section/slug fields. When the path is `/about`, it returns `about: true` with default doc values (so the sidebar still has valid state).
+2. `App.tsx` gained a `handleAbout()` callback that pushes `/about` to history and sets `about: true` in route state. The existing `handleNavigate()` resets `about: false`.
+3. Browser back/forward works because the `popstate` listener calls `parseRoute()`, which re-evaluates the path.
+
+This keeps the routing logic minimal — no routing library, no route config object, just one additional branch before the regex.
+
+**About page — rendering:**
+
+`Layout.tsx` conditionally renders `AboutPage` vs `ContentArea`/`ChapterNav` based on the `about` prop. When on the about page, `TableOfContents` is also hidden (no headings to track). The sidebar, search, and footer remain visible, so navigating back to docs is always one click away.
+
+`AboutPage.tsx` is a static component that reuses existing classes (`content-wrapper`, `chapter-header`, `chapter-title`) so it looks native in the content column. Styles specific to the about body (paragraphs, headings, links) are in `layout.css` under `.about-body`.
+
+**Discoverability:** The about page is linked from two places:
+- An info-circle (ⓘ) button in the sidebar footer, next to the existing width/theme toggles. Uses the same `sidebar-control-btn` styling and highlights active when on the about page.
+- An "About" text link in the content footer.
+
+Both use client-side navigation via `onAbout` (no full page reload).
+
+**Project rename:** "Prettify Python" → "Snake Charmer" across `package.json` (`name` field), `index.html` (`<title>`, meta description), `AboutPage.tsx`, `CLAUDE.md`, `README.md`, and `architecture.md`. The directory name on disk was not changed.
+
 ## System Architecture
 
 ### Server (`src/server.ts`)
@@ -101,6 +129,39 @@ Runtime:
   GET /*                                     → SPA HTML
 ```
 
+### Documentation Setup (`scripts/setup-docs.ts`)
+
+Before the server can start, the raw Sphinx HTML must be downloaded from `docs.python.org`. This is handled by `bun run setup`, which runs `scripts/setup-docs.ts`.
+
+```
+bun run setup [versions...] [--force]
+
+Examples:
+  bun run setup              → downloads 3.14 (default)
+  bun run setup 3.13 3.14    → downloads both versions
+  bun run setup --force 3.14 → re-downloads even if already present
+```
+
+**How it works:**
+
+1. Each Python version's docs are published as a zip archive at `https://docs.python.org/<version>/archives/python-<version>-docs-html.zip`.
+2. The script fetches the zip, writes it to `docs/`, extracts it with `unzip`, and renames the extracted directory from `python-<version>-docs-html/` to just `<version>/` (e.g., `docs/3.14/`).
+3. The zip file is deleted after extraction.
+4. If `docs/<version>/tutorial/index.html` already exists, the version is skipped unless `--force` is passed.
+
+**Result:** a `docs/` directory (gitignored) containing one subdirectory per version, each with the full Sphinx HTML output:
+
+```
+docs/
+  3.14/
+    tutorial/       ← 16 HTML files
+    reference/      ← 10 HTML files
+    library/        ← ~325 HTML files
+    ...             ← other Sphinx output (not used by the app)
+```
+
+This directory is the input to the server's startup pipeline — `discoverVersions()` scans it for version directories, and `extractAllContent()` reads the HTML files from the `tutorial/`, `reference/`, and `library/` subdirectories.
+
 ### Content Pipeline (`src/content/`)
 
 ```
@@ -115,13 +176,14 @@ Raw Sphinx HTML
 ### Frontend Architecture (`src/frontend/`)
 
 ```
-App.tsx (routing)
-  └── Layout.tsx (shell)
+App.tsx (routing: doc routes + /about)
+  └── Layout.tsx (shell, conditional on `about` prop)
         ├── MobileHeader     ← section title, theme toggle, search, menu
         ├── Sidebar           ← section tabs, version select, chapter list
-        ├── ContentArea       ← Sphinx HTML rendering, link interception
-        ├── ChapterNav        ← previous/next cards
-        ├── TableOfContents   ← right sidebar, scroll tracking
+        ├── AboutPage         ← static about page (when about=true)
+        ├── ContentArea       ← Sphinx HTML rendering, link interception (when about=false)
+        ├── ChapterNav        ← previous/next cards (when about=false)
+        ├── TableOfContents   ← right sidebar, scroll tracking (when about=false)
         └── SearchDialog      ← Cmd+K modal
 ```
 
@@ -156,12 +218,14 @@ code.css       ← Pygments syntax tokens (dark + light)
 
 | File | Responsibility | Key exports |
 |------|---------------|-------------|
+| `setup-docs.ts` | Download Python docs | `downloadVersion()`, CLI arg parsing |
 | `chapters.ts` | Section/chapter definitions | `SECTIONS`, `TUTORIAL_CHAPTERS`, `REFERENCE_CHAPTERS`, `discoverLibraryChapters()` |
 | `extractor.ts` | HTML → JSON pipeline | `extractAllContent()`, `ChapterData`, `TocEntry` |
 | `search-index.ts` | Full-text search | `SearchIndex` class |
 | `versions.ts` | Version discovery | `discoverVersions()`, `getDocsDir()` |
-| `App.tsx` | Client routing | `parseRoute()`, route state |
-| `Layout.tsx` | Component orchestrator | Composes all components, passes props |
+| `App.tsx` | Client routing | `parseRoute()`, route state, `handleAbout()` |
+| `Layout.tsx` | Component orchestrator | Composes all components, conditional about/doc rendering |
+| `AboutPage.tsx` | Static about page | Project info, author, license |
 | `Sidebar.tsx` | Navigation | Section tabs, chapter list, version select |
 | `ContentArea.tsx` | Content display | HTML rendering, link interception |
 | `useChapter.ts` | Data fetching | Caching, prefetching, abort handling |
@@ -174,7 +238,7 @@ code.css       ← Pygments syntax tokens (dark + light)
 The total documentation is a few hundred MB of HTML. Extracting and storing it all at startup means zero disk I/O per request, instant API responses, and simple code. The trade-off is a ~3 second startup time and higher baseline memory usage, which is acceptable for a documentation site.
 
 ### Why no React Router?
-The routing needs are simple: parse `/:version/:section/:slug` from the URL. A regex and `history.pushState` handle this in ~15 lines. Adding React Router would bring a dependency and more complex configuration for no practical benefit.
+The routing needs are simple: parse `/:version/:section/:slug` from the URL, plus a `/about` special case. A regex, one path check, and `history.pushState` handle this in ~20 lines. Adding React Router would bring a dependency and more complex configuration for no practical benefit. The `/about` route was added without increasing complexity — just one `if` branch before the doc regex.
 
 ### Why vanilla CSS instead of Tailwind?
 The design system has a small, well-defined set of tokens (colors, fonts, spacing). CSS custom properties handle theming elegantly. Tailwind would add build complexity and make the theme toggle harder (you'd need `dark:` variants everywhere instead of clean `[data-theme]` overrides).
