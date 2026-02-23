@@ -81,7 +81,7 @@ function App() {
 
 // Posthog setup credentials
 const posthogOptions = {
-  api_host: import.meta.env.PUBLIC_POSTHOG_HOST,
+  api_host: POSTHOG_HOST,
   defaults: "2026-01-30",
   cookieless_mode: "always",
 } as const;
@@ -89,7 +89,7 @@ const posthogOptions = {
 const root = createRoot(document.getElementById("root")!);
 root.render(
   <PostHogProvider
-    apiKey={import.meta.env.PUBLIC_POSTHOG_KEY ?? ""}
+    apiKey={POSTHOG_KEY}
     options={posthogOptions}
   >
     <App />
