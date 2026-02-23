@@ -79,11 +79,6 @@ Bun.serve({
     "/*": index,
   },
 
-  define: {
-    POSTHOG_KEY: JSON.stringify(process.env.PUBLIC_POSTHOG_KEY ?? ""),
-    POSTHOG_HOST: JSON.stringify(process.env.PUBLIC_POSTHOG_HOST ?? ""),
-  },
-
   development: process.env.NODE_ENV !== "production" && {
     hmr: true,
     console: true,
