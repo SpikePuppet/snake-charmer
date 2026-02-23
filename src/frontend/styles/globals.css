@@ -1,0 +1,138 @@
+/* ===== Base Reset & Variables ===== */
+
+:root {
+  --bg-root: #08090d;
+  --bg-sidebar: #0c0d13;
+  --bg-surface: #111219;
+  --bg-elevated: #181920;
+  --bg-hover: #1a1b24;
+  --border: #1e1f2e;
+  --border-subtle: #16171f;
+  --text-heading: #f0f0f5;
+  --text-body: #b4b4c8;
+  --text-secondary: #8888a0;
+  --text-muted: #5c5c72;
+  --accent: #6e8fff;
+  --accent-hover: #8da6ff;
+  --accent-glow: rgba(110, 143, 255, 0.12);
+  --font-display: "Outfit", sans-serif;
+  --font-body: "DM Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Code", monospace;
+  --sidebar-width: 280px;
+  --toc-width: 240px;
+  --content-max: 720px;
+  --transition: 0.18s ease;
+}
+
+/* ===== Light Theme ===== */
+[data-theme="light"] {
+  --bg-root: #f5f3ef;
+  --bg-sidebar: #edeae4;
+  --bg-surface: #e8e5df;
+  --bg-elevated: #dfdcd6;
+  --bg-hover: #d8d5cf;
+  --border: #ccc8c0;
+  --border-subtle: #d8d4cc;
+  --text-heading: #1c1917;
+  --text-body: #3d3832;
+  --text-secondary: #5c564e;
+  --text-muted: #8a847a;
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --accent-glow: rgba(37, 99, 235, 0.1);
+}
+
+[data-theme="light"] { color-scheme: light; }
+
+/* ===== Wide Content ===== */
+[data-width="wide"] {
+  --content-max: 920px;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  color-scheme: dark;
+  scroll-padding-top: 80px;
+}
+
+body {
+  background: var(--bg-root);
+  color: var(--text-body);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* Subtle background texture */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse 80% 60% at 50% -20%, rgba(110, 143, 255, 0.03), transparent);
+  pointer-events: none;
+  z-index: 0;
+}
+
+[data-theme="light"] body::before {
+  background: radial-gradient(ellipse 80% 60% at 50% -20%, rgba(37, 99, 235, 0.04), transparent);
+}
+
+/* ===== Scrollbar ===== */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* ===== Selection ===== */
+::selection {
+  background: rgba(110, 143, 255, 0.2);
+}
+
+[data-theme="light"] ::selection {
+  background: rgba(37, 99, 235, 0.2);
+}
+
+/* ===== Animations ===== */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes slideIn {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: translateY(-12px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes backdropIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

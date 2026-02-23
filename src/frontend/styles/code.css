@@ -1,0 +1,277 @@
+/* ===== Code Blocks — Midnight Syntax Theme ===== */
+
+.sphinx-content .highlight,
+.sphinx-content pre {
+  background: #0a0e16;
+  border: 1px solid #151b28;
+  border-radius: 10px;
+  padding: 18px 22px;
+  margin: 1.25rem 0 1.75rem 0;
+  overflow-x: auto;
+  font-size: 13px;
+  line-height: 1.75;
+  font-family: var(--font-mono);
+  position: relative;
+}
+
+.sphinx-content .highlight pre {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Doctest blocks */
+.sphinx-content .doctest {
+  background: #0a0e16;
+  border: 1px solid #151b28;
+  border-radius: 10px;
+  padding: 18px 22px;
+  margin: 1.25rem 0 1.75rem 0;
+  overflow-x: auto;
+}
+
+/* ===== Pygments Token Classes ===== */
+
+/* Prompt (>>>) */
+.sphinx-content .gp {
+  color: #4a5568;
+  user-select: none;
+}
+
+/* Output */
+.sphinx-content .go {
+  color: #718096;
+}
+
+/* Keywords */
+.sphinx-content .k,
+.sphinx-content .kn,
+.sphinx-content .kd,
+.sphinx-content .kc {
+  color: #f47067;
+  font-weight: 500;
+}
+
+/* Strings */
+.sphinx-content .s,
+.sphinx-content .s1,
+.sphinx-content .s2,
+.sphinx-content .sd,
+.sphinx-content .sb,
+.sphinx-content .sc,
+.sphinx-content .se,
+.sphinx-content .sh,
+.sphinx-content .si,
+.sphinx-content .ss,
+.sphinx-content .sr,
+.sphinx-content .sa {
+  color: #96d0ff;
+}
+
+/* Numbers */
+.sphinx-content .mi,
+.sphinx-content .mf,
+.sphinx-content .mh,
+.sphinx-content .mo,
+.sphinx-content .mb,
+.sphinx-content .il {
+  color: #6cb6ff;
+}
+
+/* Comments */
+.sphinx-content .c,
+.sphinx-content .c1,
+.sphinx-content .cm,
+.sphinx-content .cs,
+.sphinx-content .ch,
+.sphinx-content .cp,
+.sphinx-content .cpf {
+  color: #4a5568;
+  font-style: italic;
+}
+
+/* Built-in names */
+.sphinx-content .nb {
+  color: #c0a0e8;
+}
+
+/* Functions */
+.sphinx-content .nf,
+.sphinx-content .fm {
+  color: #d2a8ff;
+}
+
+/* Class names */
+.sphinx-content .nc {
+  color: #e0b858;
+}
+
+/* Decorators */
+.sphinx-content .nd {
+  color: #d2a8ff;
+}
+
+/* Operators */
+.sphinx-content .o,
+.sphinx-content .ow {
+  color: #f47067;
+}
+
+/* Punctuation */
+.sphinx-content .p {
+  color: #b0b8c8;
+}
+
+/* Identifiers */
+.sphinx-content .n,
+.sphinx-content .ni,
+.sphinx-content .ne,
+.sphinx-content .nn,
+.sphinx-content .nt {
+  color: #b0b8c8;
+}
+
+/* Self */
+.sphinx-content .bp {
+  color: #f47067;
+}
+
+/* Variables */
+.sphinx-content .nv,
+.sphinx-content .vm,
+.sphinx-content .vi,
+.sphinx-content .vg {
+  color: #b0b8c8;
+}
+
+.sphinx-content .ge { font-style: italic; }
+.sphinx-content .gs { font-weight: 700; }
+.sphinx-content .gt { color: #f47067; }
+.sphinx-content .gr { color: #f47067; }
+.sphinx-content .w { color: transparent; }
+
+/* ===== Light Syntax Theme ===== */
+
+[data-theme="light"] .sphinx-content .highlight,
+[data-theme="light"] .sphinx-content pre {
+  background: #f0ece6;
+  border-color: #d8d4cc;
+}
+
+[data-theme="light"] .sphinx-content .doctest {
+  background: #f0ece6;
+  border-color: #d8d4cc;
+}
+
+/* Prompt */
+[data-theme="light"] .sphinx-content .gp {
+  color: #8a847a;
+}
+
+/* Output */
+[data-theme="light"] .sphinx-content .go {
+  color: #5c564e;
+}
+
+/* Keywords */
+[data-theme="light"] .sphinx-content .k,
+[data-theme="light"] .sphinx-content .kn,
+[data-theme="light"] .sphinx-content .kd,
+[data-theme="light"] .sphinx-content .kc {
+  color: #cf222e;
+}
+
+/* Strings */
+[data-theme="light"] .sphinx-content .s,
+[data-theme="light"] .sphinx-content .s1,
+[data-theme="light"] .sphinx-content .s2,
+[data-theme="light"] .sphinx-content .sd,
+[data-theme="light"] .sphinx-content .sb,
+[data-theme="light"] .sphinx-content .sc,
+[data-theme="light"] .sphinx-content .se,
+[data-theme="light"] .sphinx-content .sh,
+[data-theme="light"] .sphinx-content .si,
+[data-theme="light"] .sphinx-content .ss,
+[data-theme="light"] .sphinx-content .sr,
+[data-theme="light"] .sphinx-content .sa {
+  color: #0a3069;
+}
+
+/* Numbers */
+[data-theme="light"] .sphinx-content .mi,
+[data-theme="light"] .sphinx-content .mf,
+[data-theme="light"] .sphinx-content .mh,
+[data-theme="light"] .sphinx-content .mo,
+[data-theme="light"] .sphinx-content .mb,
+[data-theme="light"] .sphinx-content .il {
+  color: #0550ae;
+}
+
+/* Comments */
+[data-theme="light"] .sphinx-content .c,
+[data-theme="light"] .sphinx-content .c1,
+[data-theme="light"] .sphinx-content .cm,
+[data-theme="light"] .sphinx-content .cs,
+[data-theme="light"] .sphinx-content .ch,
+[data-theme="light"] .sphinx-content .cp,
+[data-theme="light"] .sphinx-content .cpf {
+  color: #8a847a;
+}
+
+/* Built-in names */
+[data-theme="light"] .sphinx-content .nb {
+  color: #6639ba;
+}
+
+/* Functions */
+[data-theme="light"] .sphinx-content .nf,
+[data-theme="light"] .sphinx-content .fm {
+  color: #8250df;
+}
+
+/* Class names */
+[data-theme="light"] .sphinx-content .nc {
+  color: #953800;
+}
+
+/* Decorators */
+[data-theme="light"] .sphinx-content .nd {
+  color: #8250df;
+}
+
+/* Operators */
+[data-theme="light"] .sphinx-content .o,
+[data-theme="light"] .sphinx-content .ow {
+  color: #cf222e;
+}
+
+/* Punctuation */
+[data-theme="light"] .sphinx-content .p {
+  color: #3d3832;
+}
+
+/* Identifiers */
+[data-theme="light"] .sphinx-content .n,
+[data-theme="light"] .sphinx-content .ni,
+[data-theme="light"] .sphinx-content .ne,
+[data-theme="light"] .sphinx-content .nn,
+[data-theme="light"] .sphinx-content .nt {
+  color: #3d3832;
+}
+
+/* Self */
+[data-theme="light"] .sphinx-content .bp {
+  color: #cf222e;
+}
+
+/* Variables */
+[data-theme="light"] .sphinx-content .nv,
+[data-theme="light"] .sphinx-content .vm,
+[data-theme="light"] .sphinx-content .vi,
+[data-theme="light"] .sphinx-content .vg {
+  color: #3d3832;
+}
+
+[data-theme="light"] .sphinx-content .gt { color: #cf222e; }
+[data-theme="light"] .sphinx-content .gr { color: #cf222e; }
