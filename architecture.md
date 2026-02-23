@@ -1,6 +1,6 @@
 # Architecture
 
-How Prettify Python was built and how it all fits together. Written for future maintainers who want to understand the decisions behind the code.
+How Snake Charmer was built and how it all fits together. Written for future maintainers who want to understand the decisions behind the code.
 
 ## Origin & Evolution
 

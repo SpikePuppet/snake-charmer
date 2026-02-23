@@ -1,4 +1,4 @@
-# Prettify Python — Developer Guide
+# Snake Charmer — Developer Guide
 
 ## Quick Start
 

@@ -7,13 +7,16 @@ import "./styles/layout.css";
 import "./styles/content.css";
 import "./styles/code.css";
 
-function parseRoute(): { version: string; section: Section; slug: string } {
+function parseRoute(): { version: string; section: Section; slug: string; about: boolean } {
   const path = window.location.pathname;
+  if (path === "/about") {
+    return { version: "3.14", section: "tutorial", slug: "appetite", about: true };
+  }
   const match = path.match(/^\/(\d+\.\d+)\/(tutorial|reference|library)\/([a-z0-9_.]+)/);
   if (match) {
-    return { version: match[1], section: match[2] as Section, slug: match[3] };
+    return { version: match[1], section: match[2] as Section, slug: match[3], about: false };
   }
-  return { version: "3.14", section: "tutorial", slug: "appetite" };
+  return { version: "3.14", section: "tutorial", slug: "appetite", about: false };
 }
 
 function App() {
@@ -28,7 +31,12 @@ function App() {
   const handleNavigate = useCallback((version: string, section: Section, slug: string) => {
     const url = `/${version}/${section}/${slug}`;
     history.pushState(null, "", url);
-    setRoute({ version, section, slug });
+    setRoute({ version, section, slug, about: false });
+  }, []);
+
+  const handleAbout = useCallback(() => {
+    history.pushState(null, "", "/about");
+    setRoute((prev) => ({ ...prev, about: true }));
   }, []);
 
   return (
@@ -36,7 +44,9 @@ function App() {
       version={route.version}
       section={route.section}
       slug={route.slug}
+      about={route.about}
       onNavigate={handleNavigate}
+      onAbout={handleAbout}
     />
   );
 }

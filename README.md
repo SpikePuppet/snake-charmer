@@ -1,4 +1,4 @@
-# 🐍 Prettify Python
+# 🐍 Snake Charmer
 
 A modern, beautifully styled Python documentation viewer. Takes the official CPython Sphinx HTML docs and presents them in a clean, dark-themed (or light!) reading experience with instant search, keyboard navigation, and a responsive design that works great on everything from phones to ultrawide monitors.
 
@@ -41,7 +41,7 @@ bun run start
 ## 🗂️ Project Structure
 
 ```
-prettify-python/
+snake-charmer/
 ├── src/
 │   ├── server.ts              # 🖥️  Bun server + API routes
 │   ├── content/               # 📄 Content extraction pipeline
@@ -101,6 +101,6 @@ No webpack. No Vite. No Express. No Tailwind. Just Bun and good CSS. 🧹
 
 ## 📝 License & Attribution
 
-Prettify Python is an unofficial viewer for the [Python documentation](https://docs.python.org/). It re-renders the official Sphinx HTML output with custom styling, layout, and navigation — no documentation content has been modified.
+Snake Charmer is an unofficial viewer for the [Python documentation](https://docs.python.org/). It re-renders the official Sphinx HTML output with custom styling, layout, and navigation — no documentation content has been modified.
 
 Python and the Python documentation are Copyright &copy; 2001 [Python Software Foundation](https://www.python.org/psf-landing/). The documentation is licensed under the [PSF License Agreement](https://docs.python.org/3/license.html). This project is not affiliated with or endorsed by the Python Software Foundation.
