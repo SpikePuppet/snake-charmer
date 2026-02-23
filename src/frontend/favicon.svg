@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Tail -->
+  <path d="M10 28c0-4 3-7 7-7s7-3 7-7-3-7-7-7" fill="none" stroke="#22c55e" stroke-width="4" stroke-linecap="round"/>
+  <!-- Head -->
+  <ellipse cx="14.5" cy="6.5" rx="5.5" ry="5" fill="#4ade80"/>
+  <!-- Eye -->
+  <circle cx="16" cy="5.5" r="1.6" fill="#064e3b"/>
+  <circle cx="16.7" cy="5" r="0.6" fill="white"/>
+  <!-- Tongue -->
+  <path d="M9.5 7.5L7 9.5M9.5 7.5L7.5 5.5" fill="none" stroke="#f87171" stroke-width="1.2" stroke-linecap="round"/>
+</svg>
