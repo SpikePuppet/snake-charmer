@@ -99,6 +99,8 @@ Restart the server — the new version appears automatically in the version sele
 
 No webpack. No Vite. No Express. No Tailwind. Just Bun and good CSS. 🧹
 
-## 📝 License
+## 📝 License & Attribution
 
-This project reskins the official [Python documentation](https://docs.python.org/), which is licensed under the [PSF License](https://docs.python.org/3/license.html).
+Prettify Python is an unofficial viewer for the [Python documentation](https://docs.python.org/). It re-renders the official Sphinx HTML output with custom styling, layout, and navigation — no documentation content has been modified.
+
+Python and the Python documentation are Copyright &copy; 2001 [Python Software Foundation](https://www.python.org/psf-landing/). The documentation is licensed under the [PSF License Agreement](https://docs.python.org/3/license.html). This project is not affiliated with or endorsed by the Python Software Foundation.

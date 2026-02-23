@@ -83,6 +83,11 @@ export default function Layout({ version, section, slug, onNavigate }: LayoutPro
             onNavigate={handleNavigate}
           />
         )}
+
+        <footer className="content-footer">
+          <p>An unofficial viewer for the <a href="https://docs.python.org/" target="_blank" rel="noopener noreferrer">Python documentation</a></p>
+          <p>&copy; <a href="https://www.python.org/psf-landing/" target="_blank" rel="noopener noreferrer">Python Software Foundation</a> <span className="content-footer-sep">&middot;</span> <a href="https://docs.python.org/3/license.html" target="_blank" rel="noopener noreferrer">PSF License</a></p>
+        </footer>
       </main>
 
       {chapter && <TableOfContents toc={chapter.toc} />}
