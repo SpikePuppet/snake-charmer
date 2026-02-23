@@ -79,7 +79,7 @@ Bun.serve({
     "/*": index,
   },
 
-  development: {
+  development: process.env.NODE_ENV !== "production" && {
     hmr: true,
     console: true,
   },
