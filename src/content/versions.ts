@@ -1,28 +1,47 @@
-import { readdir } from "node:fs/promises";
-import { join } from "node:path";
+import { bucket } from "./s3";
 
 export interface VersionInfo {
   version: string;
   isDefault: boolean;
 }
 
-const DOCS_DIR = join(import.meta.dir, "../../docs");
-
 export async function discoverVersions(): Promise<VersionInfo[]> {
-  const entries = await readdir(DOCS_DIR, { withFileTypes: true });
+  // Extract unique version prefixes from object keys.
+  // We list without a delimiter because some S3-compatible providers
+  // (and Bun's parser) don't reliably return commonPrefixes.
+  const versionSet = new Set<string>();
+  let continuationToken: string | undefined;
 
-  const versions = entries
-    .filter((e) => e.isDirectory() && /^\d+\.\d+/.test(e.name))
-    .map((e) => e.name)
-    .sort((a, b) => {
-      const [aMaj, aMin] = a.split(".").map(Number);
-      const [bMaj, bMin] = b.split(".").map(Number);
-      return bMaj - aMaj || bMin - aMin;
+  do {
+    const result = await bucket.list({
+      ...(continuationToken ? { continuationToken } : {}),
     });
+
+    if (result.contents) {
+      for (const obj of result.contents) {
+        const match = obj.key.match(/^(\d+\.\d+)\//);
+        if (match) {
+          versionSet.add(match[1]);
+        }
+      }
+    }
+
+    continuationToken = result.isTruncated
+      ? result.nextContinuationToken
+      : undefined;
+  } while (continuationToken);
+
+  const versions = [...versionSet];
+
+  versions.sort((a, b) => {
+    const [aMaj, aMin] = a.split(".").map(Number);
+    const [bMaj, bMin] = b.split(".").map(Number);
+    return bMaj - aMaj || bMin - aMin;
+  });
 
   if (versions.length === 0) {
     throw new Error(
-      'No documentation found in docs/. Run "bun run setup" to download Python docs.'
+      'No documentation found in S3 bucket. Run "bun run setup" to upload Python docs.'
     );
   }
 
@@ -30,8 +49,4 @@ export async function discoverVersions(): Promise<VersionInfo[]> {
     version: v,
     isDefault: i === 0,
   }));
-}
-
-export function getDocsDir() {
-  return DOCS_DIR;
 }

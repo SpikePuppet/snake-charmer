@@ -1,4 +1,3 @@
-import { join } from "node:path";
 import {
   SECTIONS,
   getStaticChapters,
@@ -6,7 +5,8 @@ import {
   type ChapterMeta,
   type Section,
 } from "./chapters";
-import { discoverVersions, getDocsDir } from "./versions";
+import { discoverVersions } from "./versions";
+import { bucket } from "./s3";
 
 export interface TocEntry {
   id: string;
@@ -115,14 +115,12 @@ function stripHtml(html: string): string {
 // Returns: Map<version, Map<section, Map<slug, ChapterData>>>
 export async function extractAllContent(): Promise<Map<string, Map<string, Map<string, ChapterData>>>> {
   const versions = await discoverVersions();
-  const docsDir = getDocsDir();
   const allContent = new Map<string, Map<string, Map<string, ChapterData>>>();
 
   for (const { version } of versions) {
     const versionMap = new Map<string, Map<string, ChapterData>>();
 
     for (const sectionMeta of SECTIONS) {
-      const sectionDir = join(docsDir, version, sectionMeta.dir);
       const sectionMap = new Map<string, ChapterData>();
 
       // Get chapter list for this section
@@ -132,19 +130,19 @@ export async function extractAllContent(): Promise<Map<string, Map<string, Map<s
         chapters = staticChapters;
       } else {
         try {
-          chapters = await discoverLibraryChapters(sectionDir);
+          chapters = await discoverLibraryChapters(version);
         } catch {
-          console.warn(`  Warning: Could not discover chapters in ${sectionDir}`);
+          console.warn(`  Warning: Could not discover chapters for ${version}/${sectionMeta.dir}`);
           chapters = [];
         }
       }
 
       for (let i = 0; i < chapters.length; i++) {
         const chapter = chapters[i];
-        const filePath = join(sectionDir, chapter.filename);
+        const s3Key = `${version}/${sectionMeta.dir}/${chapter.filename}`;
 
         try {
-          const rawHtml = await Bun.file(filePath).text();
+          const rawHtml = await bucket.file(s3Key).text();
           let bodyHtml = extractBody(rawHtml);
           bodyHtml = rewriteLinks(bodyHtml, version, sectionMeta.id, chapters);
           const toc = extractToc(bodyHtml);

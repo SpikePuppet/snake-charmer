@@ -1,9 +1,11 @@
 import { $ } from "bun";
 import { join } from "node:path";
+import { readdir } from "node:fs/promises";
+import { bucket } from "../src/content/s3";
 
-const DOCS_DIR = join(import.meta.dir, "../docs");
 const BASE_URL = "https://docs.python.org";
 const DEFAULT_VERSIONS = ["3.14"];
+const SECTIONS_TO_UPLOAD = ["tutorial", "reference", "library"];
 
 function parseArgs(args: string[]) {
   const versions: string[] = [];
@@ -23,59 +25,76 @@ function parseArgs(args: string[]) {
   return { versions: versions.length > 0 ? versions : DEFAULT_VERSIONS, force };
 }
 
-async function downloadVersion(version: string, force: boolean) {
-  const destDir = join(DOCS_DIR, version);
-
-  if (!force && await Bun.file(join(destDir, "tutorial", "index.html")).exists()) {
-    console.log(`  ${version}: already exists, skipping (use --force to re-download)`);
+async function uploadVersion(version: string, force: boolean) {
+  // Check if already uploaded
+  if (!force && await bucket.exists(`${version}/tutorial/index.html`)) {
+    console.log(`  ${version}: already exists in S3, skipping (use --force to re-upload)`);
     return;
   }
 
+  const tmpDir = join(import.meta.dir, `../.tmp-docs-${version}`);
+  const zipPath = join(tmpDir, `python-${version}-docs-html.zip`);
   const url = `${BASE_URL}/${version}/archives/python-${version}-docs-html.zip`;
-  const zipPath = join(DOCS_DIR, `python-${version}-docs-html.zip`);
 
   console.log(`  ${version}: downloading from ${url}`);
+  await $`mkdir -p ${tmpDir}`.quiet();
+
   const response = await fetch(url);
   if (!response.ok) {
     console.error(`  ${version}: download failed (HTTP ${response.status})`);
+    await $`rm -rf ${tmpDir}`.quiet();
     process.exit(1);
   }
 
-  await Bun.write(zipPath, response);
+  const zipData = await response.arrayBuffer();
+  await Bun.write(zipPath, zipData);
   console.log(`  ${version}: extracting...`);
 
-  // Extract the zip — the archive contains a top-level directory like python-3.14-docs-html/
-  await $`unzip -qo ${zipPath} -d ${DOCS_DIR}`.quiet();
+  await $`unzip -qo ${zipPath} -d ${tmpDir}`.quiet();
 
-  // Rename the extracted directory to the version number
-  const extractedDir = join(DOCS_DIR, `python-${version}-docs-html`);
-  if (await Bun.file(join(extractedDir, "tutorial", "index.html")).exists()) {
-    // Remove existing dest if force re-download
-    if (force) {
-      await $`rm -rf ${destDir}`.quiet();
+  const extractedDir = join(tmpDir, `python-${version}-docs-html`);
+
+  console.log(`  ${version}: uploading to S3...`);
+  let uploadCount = 0;
+
+  for (const section of SECTIONS_TO_UPLOAD) {
+    const sectionDir = join(extractedDir, section);
+
+    let files: string[];
+    try {
+      files = await readdir(sectionDir);
+    } catch {
+      console.warn(`  ${version}: section "${section}" not found, skipping`);
+      continue;
     }
-    await $`mv ${extractedDir} ${destDir}`.quiet();
+
+    const htmlFiles = files.filter((f) => f.endsWith(".html"));
+
+    for (const file of htmlFiles) {
+      const filePath = join(sectionDir, file);
+      const s3Key = `${version}/${section}/${file}`;
+      const content = await Bun.file(filePath).text();
+      await bucket.write(s3Key, content, { type: "text/html" });
+      uploadCount++;
+    }
   }
 
-  // Clean up the zip file
-  await $`rm ${zipPath}`.quiet();
+  // Clean up temp directory
+  await $`rm -rf ${tmpDir}`.quiet();
 
-  console.log(`  ${version}: done`);
+  console.log(`  ${version}: uploaded ${uploadCount} files to S3`);
 }
 
 async function main() {
   const { versions, force } = parseArgs(Bun.argv.slice(2));
 
-  // Ensure docs directory exists
-  await $`mkdir -p ${DOCS_DIR}`.quiet();
-
   console.log("Setting up Python documentation...\n");
 
   for (const version of versions) {
-    await downloadVersion(version, force);
+    await uploadVersion(version, force);
   }
 
-  console.log("\nDocs ready! Run `bun run dev` to start the server.");
+  console.log("\nDocs uploaded to S3! Run `bun run dev` to start the server.");
 }
 
 main();

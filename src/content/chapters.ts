@@ -1,5 +1,4 @@
-import { readdir } from "node:fs/promises";
-import { join } from "node:path";
+import { bucket } from "./s3";
 
 export type Section = "tutorial" | "reference" | "library";
 
@@ -105,14 +104,37 @@ function extractTocOrder(indexHtml: string): string[] {
   return order;
 }
 
-export async function discoverLibraryChapters(libraryDir: string): Promise<ChapterMeta[]> {
-  const entries = await readdir(libraryDir);
-  const htmlFiles = entries.filter((f) => f.endsWith(".html") && f !== "index.html");
+export async function discoverLibraryChapters(version: string): Promise<ChapterMeta[]> {
+  const prefix = `${version}/library/`;
+
+  // List all HTML files in the library section
+  const htmlFiles: string[] = [];
+  let continuationToken: string | undefined;
+
+  do {
+    const result = await bucket.list({
+      prefix,
+      ...(continuationToken ? { continuationToken } : {}),
+    });
+
+    if (result.contents) {
+      for (const obj of result.contents) {
+        const filename = obj.key.slice(prefix.length);
+        if (filename.endsWith(".html") && filename !== "index.html" && !filename.includes("/")) {
+          htmlFiles.push(filename);
+        }
+      }
+    }
+
+    continuationToken = result.isTruncated
+      ? result.nextContinuationToken
+      : undefined;
+  } while (continuationToken);
 
   // Read index.html for TOC order
   let tocOrder: string[] = [];
   try {
-    const indexHtml = await Bun.file(join(libraryDir, "index.html")).text();
+    const indexHtml = await bucket.file(`${prefix}index.html`).text();
     tocOrder = extractTocOrder(indexHtml);
   } catch {}
 
@@ -125,7 +147,7 @@ export async function discoverLibraryChapters(libraryDir: string): Promise<Chapt
   for (const file of htmlFiles) {
     const slug = file.replace(".html", "");
     try {
-      const html = await Bun.file(join(libraryDir, file)).text();
+      const html = await bucket.file(`${prefix}${file}`).text();
       const title = extractTitle(html);
       if (!title) continue;
       const order = orderMap.get(slug) ?? 9999;
