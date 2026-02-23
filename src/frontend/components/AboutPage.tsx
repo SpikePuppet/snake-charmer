@@ -34,21 +34,32 @@ export default function AboutPage() {
 
         <h2>License</h2>
         <p>
-          The Python documentation is copyright the{" "}
+          The documentation content is Copyright &copy; 2001{" "}
           <a
             href="https://www.python.org/psf-landing/"
             target="_blank"
             rel="noopener noreferrer"
           >
             Python Software Foundation
-          </a>{" "}
-          and used under the{" "}
+          </a>
+          ; All Rights Reserved, and is covered under the{" "}
           <a
             href="https://docs.python.org/3/license.html"
             target="_blank"
             rel="noopener noreferrer"
           >
-            PSF License
+            PSF License Agreement
+          </a>
+          .
+        </p>
+        <p>
+          This viewer is licensed under the{" "}
+          <a
+            href="https://opensource.org/licenses/MIT"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            MIT License
           </a>
           .
         </p>
