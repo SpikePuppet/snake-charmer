@@ -8,6 +8,8 @@
     "start": "bun src/server.ts"
   },
   "dependencies": {
+    "@posthog/react": "^1.8.0",
+    "posthog-js": "^1.352.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },

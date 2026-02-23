@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { usePostHog } from "@posthog/react";
 import type { ChapterListItem, VersionInfo, Section, SectionInfo } from "../lib/types";
 
 const SECTIONS: SectionInfo[] = [
@@ -25,6 +26,7 @@ interface SidebarProps {
 export default function Sidebar({ version, section, activeSlug, open, onClose, onNavigate }: SidebarProps) {
   const [chapters, setChapters] = useState<ChapterListItem[]>([]);
   const [versions, setVersions] = useState<VersionInfo[]>([]);
+  const posthog = usePostHog();
 
   useEffect(() => {
     fetch("/api/versions")
@@ -45,6 +47,7 @@ export default function Sidebar({ version, section, activeSlug, open, onClose, o
     if (newSection === section) return;
     const meta = SECTIONS.find((s) => s.id === newSection)!;
     onNavigate(version, newSection, meta.defaultSlug);
+    posthog.capture("section_changed", { version, section: newSection });
   };
 
   return (

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { usePostHog } from "@posthog/react";
 import Sidebar from "./Sidebar";
 import ContentArea from "./ContentArea";
 import TableOfContents from "./TableOfContents";
@@ -24,6 +25,7 @@ export default function Layout({ version, section, slug, about, onNavigate, onAb
   const [searchOpen, setSearchOpen] = useState(false);
   const { chapter, loading, error } = useChapter(version, section, slug);
   const { theme, toggleTheme, contentWidth, toggleContentWidth } = usePreferences();
+  const posthog = usePostHog();
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -139,7 +141,7 @@ export default function Layout({ version, section, slug, about, onNavigate, onAb
           </a>
           <button
             className={`sidebar-control-btn${contentWidth === "wide" ? " sidebar-control-btn--active" : ""}`}
-            onClick={toggleContentWidth}
+            onClick={() => { posthog.capture("width_toggled", { width: contentWidth === "wide" ? "normal" : "wide" }); toggleContentWidth(); }}
             aria-label="Toggle content width"
             title={contentWidth === "wide" ? "Narrow content" : "Wide content"}
           >
@@ -163,7 +165,7 @@ export default function Layout({ version, section, slug, about, onNavigate, onAb
           </button>
           <button
             className="sidebar-control-btn"
-            onClick={toggleTheme}
+            onClick={() => { posthog.capture("theme_toggled", { theme: theme === "dark" ? "light" : "dark" }); toggleTheme(); }}
             aria-label="Toggle theme"
             title={theme === "dark" ? "Light mode" : "Dark mode"}
           >

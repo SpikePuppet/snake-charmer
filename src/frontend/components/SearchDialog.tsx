@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import { usePostHog } from "@posthog/react";
 import type { SearchResult, Section } from "../lib/types";
 
 const SECTION_LABELS: Record<Section, string> = {
@@ -22,6 +23,7 @@ export default function SearchDialog({ open, onClose, version, section, onNaviga
   const [loading, setLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+  const posthog = usePostHog();
 
   useEffect(() => {
     if (open) {
@@ -46,6 +48,7 @@ export default function SearchDialog({ open, onClose, version, section, onNaviga
           const data: SearchResult[] = await res.json();
           setResults(data);
           setSelectedIdx(0);
+          posthog.capture("search_executed", { version, section, query: q, result_count: data.length });
         } catch {
           setResults([]);
         } finally {
@@ -57,6 +60,7 @@ export default function SearchDialog({ open, onClose, version, section, onNaviga
   );
 
   const handleSelect = (result: SearchResult) => {
+    posthog.capture("search_result_selected", { version, section, slug: result.slug, query });
     onNavigate(version, section, result.slug);
     onClose();
   };
