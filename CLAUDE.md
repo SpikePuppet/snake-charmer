@@ -58,6 +58,7 @@ src/
       code.css                    # Syntax highlighting (dark + light)
 scripts/
   setup-docs.ts                   # Downloads Python docs from docs.python.org
+bunfig.toml                         # Bun config: inlines PUBLIC_* env vars into frontend bundle
 docs/                             # (gitignored, created by `bun run setup`)
   3.14/                           # Python 3.14 docs (Sphinx HTML output)
     tutorial/                     # 16 tutorial chapters
@@ -92,6 +93,29 @@ Content width toggle: `[data-width="wide"]` overrides `--content-max` from 720px
 - Unknown links: fall back to `docs.python.org`
 
 The frontend (`ContentArea.tsx`) intercepts clicks on internal links and uses client-side navigation.
+
+### Analytics (PostHog)
+
+PostHog is integrated via `@posthog/react`. `App.tsx` wraps the app in `<PostHogProvider>` with cookieless mode (`cookieless_mode: "always"`). API key and host are read from `process.env.PUBLIC_POSTHOG_KEY` / `process.env.PUBLIC_POSTHOG_HOST`, inlined into the frontend bundle at build time via `bunfig.toml` (`[serve.static] env = "PUBLIC_*"`).
+
+Custom events captured:
+
+| Event | Properties | Location |
+|---|---|---|
+| `chapter_viewed` | `version`, `section`, `slug` | `App.tsx` — `handleNavigate` |
+| `section_changed` | `version`, `section` | `Sidebar.tsx` — `handleSectionChange` |
+| `search_executed` | `version`, `section`, `query`, `result_count` | `SearchDialog.tsx` — after results arrive |
+| `search_result_selected` | `version`, `section`, `slug`, `query` | `SearchDialog.tsx` — `handleSelect` |
+| `theme_toggled` | `theme` (new value) | `Layout.tsx` — theme button click |
+| `width_toggled` | `width` (new value) | `Layout.tsx` — width button click |
+
+### Environment Variables
+
+Frontend env vars use the `PUBLIC_` prefix and are defined in `.env`:
+- `PUBLIC_POSTHOG_KEY` — PostHog project API key
+- `PUBLIC_POSTHOG_HOST` — PostHog ingest host (e.g. `https://us.i.posthog.com`)
+
+These are inlined into the client bundle by Bun's static bundler via the `[serve.static] env = "PUBLIC_*"` config in `bunfig.toml`. Server-side env vars (S3 credentials, etc.) do not use the `PUBLIC_` prefix and are not exposed to the frontend.
 
 ## Adding a New Doc Section
 
