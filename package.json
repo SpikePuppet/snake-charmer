@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "setup": "bun scripts/setup-docs.ts",
     "dev": "bun --hot src/server.ts",
     "start": "bun src/server.ts"
   },

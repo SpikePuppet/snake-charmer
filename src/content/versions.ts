@@ -21,7 +21,9 @@ export async function discoverVersions(): Promise<VersionInfo[]> {
     });
 
   if (versions.length === 0) {
-    throw new Error(`No version directories found in ${DOCS_DIR}`);
+    throw new Error(
+      'No documentation found in docs/. Run "bun run setup" to download Python docs.'
+    );
   }
 
   return versions.map((v, i) => ({

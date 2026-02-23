@@ -21,18 +21,12 @@ A modern, beautifully styled Python documentation viewer. Takes the official CPy
 ### Prerequisites
 
 - [Bun](https://bun.sh) (v1.0+)
-- Python docs HTML (already included for 3.14)
 
 ### Install & Run
 
 ```sh
-# Install dependencies
 bun install
-
-# Start dev server with hot reload
-bun --hot src/server.ts
-
-# Or use the npm script
+bun run setup        # downloads Python 3.14 docs (~16MB)
 bun run dev
 ```
 
@@ -85,13 +79,10 @@ Both themes have fully styled:
 
 ## 🔧 Adding More Python Versions
 
-Drop the Sphinx HTML build output into `docs/<version>/`:
-
 ```sh
-# Example: adding Python 3.15 docs
-cp -r /path/to/cpython/Doc/build/html/tutorial docs/3.15/tutorial
-cp -r /path/to/cpython/Doc/build/html/reference docs/3.15/reference
-cp -r /path/to/cpython/Doc/build/html/library docs/3.15/library
+bun run setup 3.13          # download a specific version
+bun run setup 3.13 3.14     # download multiple versions
+bun run setup --force 3.14  # re-download an existing version
 ```
 
 Restart the server — the new version appears automatically in the version selector! 🎊

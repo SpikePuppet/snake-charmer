@@ -4,13 +4,15 @@
 
 ```sh
 bun install
-bun --hot src/server.ts   # dev server on port 3000
+bun run setup              # downloads Python 3.14 docs (~16MB)
+bun --hot src/server.ts    # dev server on port 3000
 ```
 
 ## Runtime
 
 This project uses **Bun** exclusively. No Node.js, no npm, no Vite.
 
+- `bun run setup` — download Python docs (required before first run)
 - `bun --hot src/server.ts` — dev server with HMR
 - `bun src/server.ts` — production start
 - `bun test` — run tests
@@ -54,7 +56,9 @@ src/
       layout.css                  # Shell layout, sidebar, search dialog
       content.css                 # Sphinx content typography
       code.css                    # Syntax highlighting (dark + light)
-docs/
+scripts/
+  setup-docs.ts                   # Downloads Python docs from docs.python.org
+docs/                             # (gitignored, created by `bun run setup`)
   3.14/                           # Python 3.14 docs (Sphinx HTML output)
     tutorial/                     # 16 tutorial chapters
     reference/                    # 10 language reference chapters
@@ -98,7 +102,7 @@ The frontend (`ContentArea.tsx`) intercepts clicks on internal links and uses cl
 
 ## Adding a New Python Version
 
-Drop the Sphinx HTML build output into `docs/<version>/` (e.g., `docs/3.15/`). The version is auto-discovered at startup by `versions.ts`.
+Run `bun run setup <version>` (e.g., `bun run setup 3.13`). The version is auto-discovered at startup by `versions.ts`. Use `--force` to re-download an existing version.
 
 ## CSS Architecture
 
