@@ -21,9 +21,10 @@ interface SidebarProps {
   open: boolean;
   onClose: () => void;
   onNavigate: (version: string, section: Section, slug: string) => void;
+  onSearchOpen: () => void;
 }
 
-export default function Sidebar({ version, section, activeSlug, open, onClose, onNavigate }: SidebarProps) {
+export default function Sidebar({ version, section, activeSlug, open, onClose, onNavigate, onSearchOpen }: SidebarProps) {
   const [chapters, setChapters] = useState<ChapterListItem[]>([]);
   const [versions, setVersions] = useState<VersionInfo[]>([]);
   const posthog = usePostHog();
@@ -91,6 +92,15 @@ export default function Sidebar({ version, section, activeSlug, open, onClose, o
               ))}
             </select>
           )}
+
+          <button className="sidebar-search-btn" onClick={onSearchOpen}>
+            <svg className="sidebar-search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8" />
+              <path d="M21 21l-4.35-4.35" />
+            </svg>
+            <span className="sidebar-search-text">Search docs...</span>
+            <kbd className="sidebar-search-kbd">&#8984;K</kbd>
+          </button>
         </div>
 
         <nav className="sidebar-nav">

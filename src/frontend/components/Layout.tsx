@@ -67,6 +67,7 @@ export default function Layout({ version, section, slug, about, onNavigate, onAb
         open={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
         onNavigate={handleNavigate}
+        onSearchOpen={() => setSearchOpen(true)}
       />
 
       <main className="main-area">
@@ -112,8 +113,6 @@ export default function Layout({ version, section, slug, about, onNavigate, onAb
       />
 
       <div className="sidebar-footer">
-        <kbd>&#8984;K</kbd>
-        <span>Search</span>
         <div className="sidebar-controls">
           <button
             className={`sidebar-control-btn${about ? " sidebar-control-btn--active" : ""}`}
