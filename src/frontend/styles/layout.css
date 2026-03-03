@@ -12,7 +12,7 @@
   position: sticky;
   top: 0;
   z-index: 30;
-  background: rgba(8, 9, 13, 0.92);
+  background: rgba(30, 30, 46, 0.9);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border-subtle);
@@ -54,7 +54,7 @@
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.65);
+  background: rgba(0, 0, 0, 0.55);
   z-index: 40;
   animation: backdropIn 0.2s ease;
 }
@@ -159,7 +159,7 @@
   font-family: var(--font-body);
   cursor: pointer;
   transition: border-color var(--transition);
-  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%235c5c72' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236e738d' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 12px center;
 }
@@ -435,7 +435,7 @@
 .error-message h2 {
   font-family: var(--font-display);
   font-size: 1.25rem;
-  color: #f06060;
+  color: #ff7f97;
   margin-bottom: 8px;
 }
 
@@ -567,7 +567,7 @@
   position: fixed;
   inset: 0;
   z-index: 100;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.55);
   display: flex;
   align-items: flex-start;
   justify-content: center;
@@ -582,7 +582,7 @@
   background: var(--bg-surface);
   border: 1px solid var(--border);
   border-radius: 14px;
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(110, 143, 255, 0.05);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.42), 0 0 0 1px rgba(183, 161, 255, 0.14);
   overflow: hidden;
   animation: modalIn 0.2s ease;
   margin: 0 16px;

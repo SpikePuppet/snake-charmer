@@ -1,20 +1,20 @@
 /* ===== Base Reset & Variables ===== */
 
 :root {
-  --bg-root: #08090d;
-  --bg-sidebar: #0c0d13;
-  --bg-surface: #111219;
-  --bg-elevated: #181920;
-  --bg-hover: #1a1b24;
-  --border: #1e1f2e;
-  --border-subtle: #16171f;
-  --text-heading: #f0f0f5;
-  --text-body: #b4b4c8;
-  --text-secondary: #8888a0;
-  --text-muted: #5c5c72;
-  --accent: #6e8fff;
-  --accent-hover: #8da6ff;
-  --accent-glow: rgba(110, 143, 255, 0.12);
+  --bg-root: #1e1e2e;
+  --bg-sidebar: #181825;
+  --bg-surface: #24273a;
+  --bg-elevated: #313244;
+  --bg-hover: #3a3d4f;
+  --border: #45475a;
+  --border-subtle: #313244;
+  --text-heading: #f5f7ff;
+  --text-body: #cad3f5;
+  --text-secondary: #a5adce;
+  --text-muted: #6e738d;
+  --accent: #b7a1ff;
+  --accent-hover: #cbb9ff;
+  --accent-glow: rgba(183, 161, 255, 0.18);
   --font-display: "Outfit", sans-serif;
   --font-body: "DM Sans", -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Code", monospace;
@@ -77,7 +77,7 @@ body::before {
   content: "";
   position: fixed;
   inset: 0;
-  background: radial-gradient(ellipse 80% 60% at 50% -20%, rgba(110, 143, 255, 0.03), transparent);
+  background: radial-gradient(ellipse 80% 60% at 50% -20%, rgba(183, 161, 255, 0.07), transparent);
   pointer-events: none;
   z-index: 0;
 }
@@ -104,7 +104,7 @@ body::before {
 
 /* ===== Selection ===== */
 ::selection {
-  background: rgba(110, 143, 255, 0.2);
+  background: rgba(183, 161, 255, 0.28);
 }
 
 [data-theme="light"] ::selection {
